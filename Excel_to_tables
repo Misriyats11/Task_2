@@ -1,0 +1,63 @@
+!pip install mysql-connector-python
+!pip install pandas
+
+import pandas as pd
+import numpy as np
+
+import mysql.connector
+db_conf = mysql.connector.connect(host='localhost',user='root',password='Password@123')
+cursor=db_conf.cursor()
+
+data = pd.read_csv("/home/misriya/Desktop/source_target_field_map.csv")
+data
+
+df1=data.drop(['TargetTableName','TargetColumnName'],axis=1)
+df2=data.drop(['SourceTableName','SourceColumnName'],axis=1)
+
+df1.head()
+
+lst1=df1.SourceTableName.unique().tolist()
+print(lst1)
+
+for tblName in lst1:  
+    rslt_df = df1[df1["SourceTableName"] == tblName] 
+    l_col=rslt_df["SourceColumnName"].tolist()
+    SqlQrt="Create Table " +  tblName + " ("
+    colQuery=""
+    Col_count=0
+    for colName in l_col:
+        Col_count=Col_count+1
+        colQuery=colName + " varchar(40) "
+        if(len(l_col)!=Col_count):
+            colQuery=colQuery+"," 
+        SqlQrt=SqlQrt+" "+ colQuery 
+        SqlQrt=SqlQrt + ");"
+        cursor.execute("use Database1")
+        cursor.execute(SqlQrt)
+
+    print(SqlQrt)
+    
+  
+df2.head()
+
+lst2=df2.TargetTableName.unique().tolist()
+print(lst2)
+
+
+for tblName in lst2:  
+    rslt_df = df2[df2["TargetTableName"] == tblName] 
+    l_col=rslt_df["TargetColumnName"].tolist()
+    SqlQrt="CREATE TABLE " +  tblName + " ("
+    colQuery=""
+    Col_count=0
+    for colName in l_col:
+        Col_count=Col_count+1
+        colQuery=colName + " varchar(40) "
+        if(len(l_col)!=Col_count):
+            colQuery=colQuery+"," 
+        SqlQrt=SqlQrt+" "+ colQuery 
+        SqlQrt=SqlQrt + ");"
+        cursor.execute("use Database2")
+        cursor.execute(SqlQrt)
+
+    print(SqlQrt)
